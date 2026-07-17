@@ -93,7 +93,8 @@ export async function POST(request: Request) {
 
     const companyName =
       process.env.NEXT_PUBLIC_COMPANY_NAME || "Chisholm Brothers Painting";
-    const internalEmail = process.env.INTERNAL_NOTIFICATION_EMAIL;
+    const internalEmail =
+      process.env.INTERNAL_NOTIFICATION_EMAIL || "bid@chismbrothers.com";
     const fromEmail =
       process.env.FROM_EMAIL || "Estimates <onboarding@resend.dev>";
     const replyTo = process.env.REPLY_TO_EMAIL || internalEmail;
@@ -126,49 +127,62 @@ export async function POST(request: Request) {
       row("Referrer", lead.referrer)
     ].join("");
 
-    const tasks: Promise<unknown>[] = [sendCrmWebhook(lead, reference)];
-
-    if (resendKey && internalEmail) {
-      const resend = new Resend(resendKey);
-
-      tasks.push(
-        resend.emails.send({
-          from: fromEmail,
-          to: internalEmail.split(",").map((email) => email.trim()),
-          replyTo: lead.email,
-          subject: `New estimate request: ${lead.firstName} ${lead.lastName} — ${reference}`,
-          html: `
-            <div style="font-family:Arial,sans-serif;max-width:720px;margin:auto;color:#1f2924">
-              <h1 style="font-size:24px">New estimate request</h1>
-              <table style="border-collapse:collapse;width:100%">${details}</table>
-            </div>
-          `
-        }),
-        resend.emails.send({
-          from: fromEmail,
-          to: lead.email,
-          replyTo,
-          subject: `We received your estimate request — ${reference}`,
-          html: `
-            <div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#1f2924;line-height:1.6">
-              <h1 style="font-size:26px">Thank you, ${escapeHtml(lead.firstName)}.</h1>
-              <p>We received your estimate request for <strong>${escapeHtml(
-                lead.services.join(", ")
-              )}</strong>.</p>
-              <p>A member of the ${escapeHtml(
-                companyName
-              )} team will review the details and contact you about the next step.</p>
-              <p>Your reference number is <strong>${reference}</strong>.</p>
-            </div>
-          `
-        })
+    if (!resendKey) {
+      return NextResponse.json(
+        { error: "Email delivery is not configured yet." },
+        { status: 500 }
       );
     }
 
-    const results = await Promise.allSettled(tasks);
-    const failed = results.filter((result) => result.status === "rejected");
-    if (failed.length) {
-      console.error("One or more integrations failed", failed);
+    const resend = new Resend(resendKey);
+
+    const crmResult = await Promise.allSettled([sendCrmWebhook(lead, reference)]);
+    const crmFailed = crmResult.some((result) => result.status === "rejected");
+    if (crmFailed) {
+      console.error("CRM integration failed", crmResult);
+    }
+
+    const emailResults = await Promise.all([
+      resend.emails.send({
+        from: fromEmail,
+        to: internalEmail.split(",").map((email) => email.trim()),
+        replyTo: lead.email,
+        subject: `New lead: ${lead.firstName} ${lead.lastName} — ${reference}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:720px;margin:auto;color:#1f2924">
+            <p style="margin:0 0 8px;color:#66736c;font-size:13px;text-transform:uppercase;letter-spacing:.08em">Lead ingest</p>
+            <h1 style="font-size:24px;margin:0 0 18px">New estimate request</h1>
+            <table style="border-collapse:collapse;width:100%">${details}</table>
+          </div>
+        `
+      }),
+      resend.emails.send({
+        from: fromEmail,
+        to: lead.email,
+        replyTo,
+        subject: `We received your estimate request — ${reference}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#1f2924;line-height:1.6">
+            <h1 style="font-size:26px">Thank you, ${escapeHtml(lead.firstName)}.</h1>
+            <p>We received your estimate request for <strong>${escapeHtml(
+              lead.services.join(", ")
+            )}</strong>.</p>
+            <p>A member of the ${escapeHtml(
+              companyName
+            )} team will review the details and contact you about the next step.</p>
+            <p>Your reference number is <strong>${reference}</strong>.</p>
+          </div>
+        `
+      })
+    ]);
+
+    const failedEmail = emailResults.find((result) => result.error);
+    if (failedEmail?.error) {
+      console.error("Resend email failed", failedEmail.error);
+      return NextResponse.json(
+        { error: "We could not send your request. Please try again." },
+        { status: 502 }
+      );
     }
 
     return NextResponse.json({ ok: true, reference });

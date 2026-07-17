@@ -1,6 +1,6 @@
 # Chisholm Brother Ingest
 
-A production-ready estimate intake page for Chisholm Brothers Painting.
+A production-ready lead ingest and estimate intake page for Chisholm Brothers Painting.
 
 ## Included
 
@@ -8,7 +8,7 @@ A production-ready estimate intake page for Chisholm Brothers Painting.
 - Vercel-compatible Next.js application
 - Server-side validation with Zod
 - Customer confirmation email through Resend
-- Internal lead notification email
+- Internal lead notification email to `bid@chismbrothers.com`
 - Generic CRM webhook for Pipedrive, HubSpot, Jobber, or automation tools
 - Lead reference number
 - Environment-driven branding and contact details
@@ -29,6 +29,9 @@ Open `http://localhost:3000`.
 2. Verify the sending domain.
 3. Add `RESEND_API_KEY`.
 4. Set `FROM_EMAIL`, `INTERNAL_NOTIFICATION_EMAIL`, and `REPLY_TO_EMAIL`.
+
+By default, internal lead notifications are addressed to `bid@chismbrothers.com`.
+Use a `FROM_EMAIL` address from a verified Resend sending domain before sending real traffic.
 
 During testing, Resend's onboarding sender can only send to the account owner's verified email.
 
