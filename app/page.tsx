@@ -1,37 +1,41 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-
-const services = [
-  "Interior Painting",
-  "Exterior Painting",
-  "Cabinet Painting",
-  "Historic Restoration",
-  "Wood Repair & Restoration",
-  "Specialty Finishes",
-  "Color Consultation",
-  "Commercial Painting",
-  "Other"
-];
+import {
+  entities,
+  entityIds,
+  entityLabels,
+  type EntityId
+} from "./config/entities";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function EstimatePage() {
+  const [entityId, setEntityId] = useState<EntityId>("chism-brothers");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const [reference, setReference] = useState("");
 
+  const entity = entities[entityId];
+
   const company = useMemo(
     () => ({
-      name: process.env.NEXT_PUBLIC_COMPANY_NAME || "Chisholm Brothers Painting",
+      name: entity.name,
       phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || "(555) 555-5555",
       email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "estimates@example.com",
       city: process.env.NEXT_PUBLIC_COMPANY_CITY || "San Diego",
       privacyUrl: process.env.NEXT_PUBLIC_PRIVACY_URL || "#"
     }),
-    []
+    [entity.name]
   );
+
+  function switchEntity(id: EntityId) {
+    setEntityId(id);
+    setSelectedServices([]);
+    setStatus("idle");
+    setMessage("");
+  }
 
   function toggleService(service: string) {
     setSelectedServices((current) =>
@@ -56,6 +60,7 @@ export default function EstimatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
+          entityId,
           services: selectedServices,
           submittedFrom: window.location.href,
           referrer: document.referrer || null
@@ -86,10 +91,11 @@ export default function EstimatePage() {
         <section className="hero compact">
           <div className="hero-inner">
             <div className="eyebrow">Estimate request received</div>
-            <h1>Thank you. We’ll be in touch soon.</h1>
+            <h1>{entity.confirmationTitle}</h1>
             <p>
-              Your request has been delivered to {company.name}. Your reference
-              number is <strong>{reference}</strong>.
+              {entity.confirmationBody
+                .replace("{company}", company.name)
+                .replace("{reference}", reference)}
             </p>
             <button className="button" onClick={() => setStatus("idle")}>
               Submit another project
@@ -104,13 +110,23 @@ export default function EstimatePage() {
     <main>
       <section className="hero">
         <div className="hero-inner">
-          <div className="brand-mark">CB</div>
-          <div className="eyebrow">Professional painting and restoration</div>
-          <h1>Tell us about your project.</h1>
-          <p>
-            Share a few details and our team will contact you to discuss the
-            project and arrange the right next step.
-          </p>
+          <div className="brand-mark">{entity.prefix}</div>
+          <div className="entity-toggle" role="group" aria-label="Select brand">
+            {entityIds.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className={entityId === id ? "active" : ""}
+                onClick={() => switchEntity(id)}
+                aria-pressed={entityId === id}
+              >
+                {entityLabels[id]}
+              </button>
+            ))}
+          </div>
+          <div className="eyebrow">{entity.heroEyebrow}</div>
+          <h1>{entity.heroTitle}</h1>
+          <p>{entity.heroBody}</p>
           <div className="hero-contact">
             <span>{company.city}</span>
             <a href={`tel:${company.phone}`}>{company.phone}</a>
@@ -121,6 +137,7 @@ export default function EstimatePage() {
 
       <section className="page-shell">
         <form onSubmit={handleSubmit} className="estimate-form">
+          <input type="hidden" name="entityId" value={entityId} />
           <section className="form-section">
             <div className="section-heading">
               <span>01</span>
@@ -161,14 +178,7 @@ export default function EstimatePage() {
                 label="Property type"
                 name="propertyType"
                 required
-                options={[
-                  "Single-family home",
-                  "Condo or townhouse",
-                  "Historic home",
-                  "Rental property",
-                  "Commercial property",
-                  "Other"
-                ]}
+                options={entity.propertyTypes}
               />
               <Select
                 label="Occupancy"
@@ -187,7 +197,7 @@ export default function EstimatePage() {
               </div>
             </div>
             <div className="service-grid">
-              {services.map((service) => (
+              {entity.services.map((service) => (
                 <label
                   className={`service-card ${
                     selectedServices.includes(service) ? "selected" : ""
@@ -259,6 +269,8 @@ export default function EstimatePage() {
                   "Property owner",
                   "Authorized decision-maker",
                   "Property manager",
+                  "General contractor",
+                  "Facility manager",
                   "Tenant",
                   "Other"
                 ]}
@@ -346,7 +358,7 @@ export default function EstimatePage() {
               disabled={status === "submitting" || selectedServices.length === 0}
               type="submit"
             >
-              {status === "submitting" ? "Sending…" : "Request an estimate"}
+              {status === "submitting" ? "Sending…" : entity.submitLabel}
             </button>
           </div>
         </form>

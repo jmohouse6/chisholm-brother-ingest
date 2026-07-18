@@ -1,17 +1,19 @@
-# Chisholm Brother Ingest
+# Chism Ingest
 
-A production-ready lead ingest and estimate intake page for Chisholm Brothers Painting.
+A production-ready lead ingest and estimate intake page for **Chism Brothers Painting** (residential) and **Chism Commercial Painting and Contracting** (commercial).
 
 ## Included
 
 - Responsive customer estimate form
+- Universal entity toggle between Residential and Commercial brands
+- Entity-specific services, property types, and reference prefixes (`CB-` and `CC-`)
 - Vercel-compatible Next.js application
 - Server-side validation with Zod
 - Customer confirmation email through Resend
 - Internal lead notification email to `bid@chismbrothers.com`
-- Generic CRM webhook for Pipedrive, HubSpot, Jobber, or automation tools
+- Generic CRM webhook for Pipedrive, HubSpot, Jobber, or automation tools (includes `entityId` and `brandName`)
 - Lead reference number
-- Environment-driven branding and contact details
+- Environment-driven shared contact details
 
 ## Run locally
 
@@ -46,6 +48,8 @@ The form sends:
   "event": "estimate.created",
   "reference": "CB-20260717-ABC123",
   "pipelineStage": "New Inquiry",
+  "entityId": "chism-brothers",
+  "brandName": "Chism Brothers Painting",
   "payload": {}
 }
 ```
@@ -88,4 +92,4 @@ vercel --prod
 
 ## Before publishing
 
-Replace the placeholder phone, email, privacy URL, and sending domain. Confirm the exact company spelling and approved branding before driving traffic to the page.
+Replace the placeholder phone, email, privacy URL, and sending domain. Confirm the exact company branding and approved service lists before driving traffic to the page.

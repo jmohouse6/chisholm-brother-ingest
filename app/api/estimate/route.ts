@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
 import { randomUUID } from "crypto";
+import { entityLabels, getEntity } from "../../config/entities";
 
 export const runtime = "nodejs";
 
 const schema = z.object({
+  entityId: z.enum(["chism-brothers", "chism-commercial"]).default("chism-brothers"),
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
   email: z.string().email(),
@@ -50,7 +52,9 @@ function row(label: string, value: unknown): string {
   </tr>`;
 }
 
-async function sendCrmWebhook(payload: unknown, reference: string) {
+type Lead = z.infer<typeof schema>;
+
+async function sendCrmWebhook(payload: Lead, reference: string) {
   const url = process.env.CRM_WEBHOOK_URL;
   if (!url) return { skipped: true };
 
@@ -64,6 +68,8 @@ async function sendCrmWebhook(payload: unknown, reference: string) {
       event: "estimate.created",
       reference,
       pipelineStage: "New Inquiry",
+      entityId: payload.entityId,
+      brandName: getEntity(payload.entityId).name,
       payload
     })
   });
@@ -86,13 +92,13 @@ export async function POST(request: Request) {
     }
 
     const lead = parsed.data;
-    const reference = `CB-${new Date()
+    const entity = getEntity(lead.entityId);
+    const reference = `${entity.prefix}-${new Date()
       .toISOString()
       .slice(0, 10)
       .replaceAll("-", "")}-${randomUUID().slice(0, 6).toUpperCase()}`;
 
-    const companyName =
-      process.env.NEXT_PUBLIC_COMPANY_NAME || "Chisholm Brothers Painting";
+    const companyName = entity.name;
     const internalEmail =
       process.env.INTERNAL_NOTIFICATION_EMAIL || "bid@chismbrothers.com";
     const fromEmail =
@@ -101,6 +107,8 @@ export async function POST(request: Request) {
     const resendKey = process.env.RESEND_API_KEY;
 
     const details = [
+      row("Entity", entityLabels[lead.entityId]),
+      row("Brand", companyName),
       row("Reference", reference),
       row("Name", `${lead.firstName} ${lead.lastName}`),
       row("Email", lead.email),

@@ -28,7 +28,7 @@ a { color: inherit; }
     linear-gradient(120deg, rgba(17, 31, 24, .97), rgba(30, 54, 42, .88)),
     radial-gradient(circle at top right, #7c9682, #122018 65%);
   color: white;
-  padding: 82px 24px 96px;
+  padding: 40px 24px 32px;
 }
 
 .hero.compact { min-height: 100vh; display: grid; place-items: center; }
@@ -36,19 +36,50 @@ a { color: inherit; }
 .hero-inner { max-width: 1120px; margin: 0 auto; }
 
 .brand-mark {
-  width: 62px;
-  height: 62px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   border: 1px solid rgba(255,255,255,.35);
   border-radius: 50%;
   font-family: Georgia, serif;
-  font-size: 22px;
-  margin-bottom: 46px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.entity-toggle {
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.entity-toggle button {
+  background: transparent;
+  color: rgba(255,255,255,.76);
+  border: 0;
+  padding: 8px 18px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.entity-toggle button.active {
+  background: rgba(255,255,255,.15);
+  color: white;
+}
+
+.entity-toggle button:hover:not(.active) {
+  background: rgba(255,255,255,.08);
+  color: white;
 }
 
 .eyebrow {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -59,24 +90,24 @@ a { color: inherit; }
   max-width: 760px;
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 400;
-  font-size: clamp(52px, 8vw, 92px);
-  line-height: .98;
-  margin: 18px 0 22px;
+  font-size: clamp(30px, 4.5vw, 40px);
+  line-height: 1.05;
+  margin: 10px 0 12px;
 }
 
 .hero p {
   max-width: 650px;
   color: rgba(255,255,255,.76);
-  font-size: 19px;
-  line-height: 1.65;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
-.hero-contact { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 36px; font-size: 14px; }
+.hero-contact { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; font-size: 13px; }
 .hero-contact a { text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.35); }
 
 .page-shell {
   max-width: 1120px;
-  margin: -42px auto 90px;
+  margin: -20px auto 60px;
   padding: 0 20px;
   position: relative;
 }
@@ -88,41 +119,41 @@ a { color: inherit; }
   overflow: hidden;
 }
 
-.form-section { padding: 54px 58px; border-bottom: 1px solid var(--line); }
+.form-section { padding: 32px 40px; border-bottom: 1px solid var(--line); }
 
 .section-heading {
   display: grid;
-  grid-template-columns: 48px 1fr;
-  gap: 18px;
-  margin-bottom: 34px;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .section-heading > span {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: var(--soft-green);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 800;
 }
 
 .section-heading h2 {
   font-family: Georgia, serif;
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 400;
-  margin: 0 0 7px;
+  margin: 0 0 4px;
 }
 
-.section-heading p { margin: 0; color: var(--muted); }
+.section-heading p { margin: 0; color: var(--muted); font-size: 13px; }
 
-.grid { display: grid; gap: 22px; }
+.grid { display: grid; gap: 18px; }
 .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .full { grid-column: 1 / -1; }
 
-.field { display: flex; flex-direction: column; gap: 9px; }
-.field > span { font-size: 13px; font-weight: 750; }
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field > span { font-size: 12px; font-weight: 750; }
 
 input, select, textarea {
   width: 100%;
@@ -130,7 +161,7 @@ input, select, textarea {
   background: #fbfbf8;
   color: var(--ink);
   border-radius: 10px;
-  padding: 14px 15px;
+  padding: 12px 14px;
   font: inherit;
   transition: border-color .2s, box-shadow .2s, background .2s;
 }
@@ -147,20 +178,20 @@ input:focus, select:focus, textarea:focus {
 .service-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .service-card {
-  min-height: 82px;
+  min-height: 64px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 12px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   transition: all .2s;
 }
 
@@ -191,7 +222,7 @@ input:focus, select:focus, textarea:focus {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.55;
-  margin: 12px 0;
+  margin: 10px 0;
 }
 
 .consent input { width: 18px; margin-top: 2px; }
@@ -201,7 +232,7 @@ input:focus, select:focus, textarea:focus {
   justify-content: space-between;
   gap: 30px;
   align-items: center;
-  padding: 34px 58px;
+  padding: 24px 40px;
   background: #f7f5ef;
 }
 
@@ -211,26 +242,29 @@ input:focus, select:focus, textarea:focus {
 .button {
   border: 0;
   border-radius: 999px;
-  padding: 16px 25px;
+  padding: 14px 22px;
   background: var(--accent);
   color: white;
   font-weight: 800;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
   box-shadow: 0 8px 22px rgba(181, 95, 53, .2);
 }
 
 .button:hover { background: var(--accent-dark); }
 .button:disabled { opacity: .55; cursor: not-allowed; }
-.error { margin: 22px 58px 0; padding: 15px; border-radius: 10px; background: #fff0ee; color: #8f2319; }
+.error { margin: 16px 40px 0; padding: 12px; border-radius: 10px; background: #fff0ee; color: #8f2319; }
 
 @media (max-width: 760px) {
-  .hero { padding: 54px 20px 72px; }
-  .brand-mark { margin-bottom: 34px; }
-  .hero h1 { font-size: 52px; }
-  .page-shell { padding: 0 10px; }
-  .form-section { padding: 38px 24px; }
+  .hero { padding: 32px 20px 24px; }
+  .brand-mark { margin-bottom: 18px; }
+  .hero h1 { font-size: 34px; }
+  .page-shell { padding: 0 10px; margin-top: -12px; }
+  .form-section { padding: 28px 24px; }
   .grid.two, .service-grid { grid-template-columns: 1fr; }
-  .submit-row { padding: 28px 24px; align-items: stretch; flex-direction: column; }
+  .submit-row { padding: 22px 24px; align-items: stretch; flex-direction: column; }
   .button { width: 100%; }
+  .entity-toggle { display: flex; width: 100%; }
+  .entity-toggle button { flex: 1; padding: 10px 8px; font-size: 13px; }
+  .error { margin: 16px 24px 0; }
 }
